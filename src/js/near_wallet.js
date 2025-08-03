@@ -93,28 +93,15 @@ function initLoginButton() {
                     throw signOutError;
                 }
             } else {
-                // If not logged in, show modal to sign in
+                // If not logged in, trigger wallet selection
+                // The modal should automatically show when we try to get a wallet
                 try {
-                    if (typeof modal.show === 'function') {
-                        modal.show();
-                    } else if (typeof modal.open === 'function') {
-                        modal.open();
-                    } else if (typeof modal.signIn === 'function') {
-                        await modal.signIn();
-                    } else {
-                        // Try different approaches
-                        console.log("Trying alternative modal methods...");
-                        modal.show();
-                    }
-                } catch (modalError) {
-                    console.error("Modal error:", modalError);
-                    // If modal methods fail, try selector methods
-                    try {
-                        await selector.connect();
-                    } catch (selectorError) {
-                        console.error("Selector connect error:", selectorError);
-                        throw new Error("Unable to open wallet selector");
-                    }
+                    // This should trigger the wallet selector UI
+                    await selector.wallet();
+                } catch (error) {
+                    // This is expected when no wallet is connected
+                    // The UI should have shown the wallet selector
+                    console.log("Wallet selector should have opened");
                 }
             }
         } catch (error) {
