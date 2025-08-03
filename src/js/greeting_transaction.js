@@ -1,5 +1,5 @@
-import { selector } from './near_wallet.js';
-import { getCurrentNetworkId, getHelloContract } from './config';
+import { getWallet } from './near_wallet';
+import { getHelloContract } from './config';
 
 // Get contract name from config
 const getContractName = () => {
@@ -9,19 +9,15 @@ const getContractName = () => {
 // Function to update greeting message
 async function updateGreeting(message) {
     try {
-        if (!selector) {
-            throw new Error('Wallet not initialized');
-        }
-
-        const wallet = await selector.wallet();
+        const wallet = getWallet();
         if (!wallet) {
             throw new Error('Please connect your wallet first');
         }
 
         // Get the contract name based on current network
-        const contractName = getContractName();
+        const contractName = getHelloContract();
 
-        // Call the add_message method on the smart contract
+        // Call the set_greeting method on the smart contract
         const result = await wallet.signAndSendTransaction({
             signerId: wallet.accountId,
             receiverId: contractName,
@@ -67,7 +63,7 @@ function initGreetingTransaction() {
             updateButton.textContent = 'Processing...';
 
             await updateGreeting(message);
-            
+
             // Clear input and reset button after success
             messageInput.value = '';
             alert('Greeting updated successfully!');
