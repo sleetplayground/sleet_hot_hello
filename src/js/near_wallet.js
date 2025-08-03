@@ -17,10 +17,6 @@ export async function initWallet() {
 
         modal = new WalletSelectorUI(selector);
 
-        // Debug: log available methods on modal
-        console.log("Modal methods:", Object.getOwnPropertyNames(modal));
-        console.log("Modal prototype methods:", Object.getOwnPropertyNames(Object.getPrototypeOf(modal)));
-
         // Set up event listeners
         selector.on("wallet:signOut", async () => {
             console.log("Wallet signed out");
@@ -44,6 +40,18 @@ export async function initWallet() {
         } catch (error) {
             console.log("No wallet connected yet");
         }
+
+        // Periodically check wallet state to keep UI in sync
+        setInterval(async () => {
+            const wasSignedIn = currentWallet !== null;
+            await refreshWalletState();
+            const isSignedIn = currentWallet !== null;
+
+            // Only log if state changed
+            if (wasSignedIn !== isSignedIn) {
+                console.log(`Wallet state changed: ${isSignedIn ? 'signed in' : 'signed out'}`);
+            }
+        }, 5000); // Check every 5 seconds
 
         console.log("Wallet initialized successfully");
     } catch (error) {
@@ -75,27 +83,18 @@ function initLoginButton() {
                         console.log("Available wallet methods:", Object.getOwnPropertyNames(currentWallet));
                         throw new Error("No suitable signOut method found");
                     }
+
+                    // Manually update UI since event might not fire
+                    currentWallet = null;
+                    updateLoginButton();
+                    console.log("Successfully signed out");
                 } catch (signOutError) {
                     console.error("SignOut error:", signOutError);
                     throw signOutError;
                 }
             } else {
                 // If not logged in, show modal to sign in
-                try {
-                    if (typeof modal.show === 'function') {
-                        modal.show();
-                    } else if (typeof modal.open === 'function') {
-                        modal.open();
-                    } else if (typeof modal.signIn === 'function') {
-                        await modal.signIn();
-                    } else {
-                        console.log("Available modal methods:", Object.getOwnPropertyNames(modal));
-                        throw new Error("No suitable method found to open wallet modal");
-                    }
-                } catch (modalError) {
-                    console.error("Modal error:", modalError);
-                    throw modalError;
-                }
+                modal.show();
             }
         } catch (error) {
             console.error('Login/logout error:', error);
@@ -113,9 +112,24 @@ function updateLoginButton() {
     if (currentWallet) {
         loginButton.textContent = 'LOGOUT';
         loginButton.title = `Logged in as ${currentWallet.accountId}`;
+        loginButton.style.backgroundColor = '#4CAF50'; // Green for logged in
     } else {
         loginButton.textContent = 'LOGIN';
         loginButton.title = 'Connect your NEAR wallet';
+        loginButton.style.backgroundColor = ''; // Reset to default
+    }
+}
+
+// Refresh wallet state
+export async function refreshWalletState() {
+    try {
+        currentWallet = await selector.wallet();
+        updateLoginButton();
+        return true;
+    } catch (error) {
+        currentWallet = null;
+        updateLoginButton();
+        return false;
     }
 }
 
