@@ -17,16 +17,20 @@ export async function initWallet() {
 
         modal = new WalletSelectorUI(selector);
 
-        // Set up event listeners
+        // Set up event listeners exactly as in docs
         selector.on("wallet:signOut", async () => {
             console.log("Wallet signed out");
             currentWallet = null;
             updateLoginButton();
         });
 
-        selector.on("wallet:signIn", async (event) => {
-            console.log("Wallet signed in:", event);
-            currentWallet = await selector.wallet();
+        selector.on("wallet:signIn", async (t) => {
+            console.log("Wallet signed in:", t);
+            const wallet = await selector.wallet(); // api like near-wallet-selector
+            const address = t.accounts[0].accountId;
+            console.log("Connected account:", address);
+            
+            currentWallet = wallet;
             updateLoginButton();
         });
 
@@ -40,18 +44,6 @@ export async function initWallet() {
         } catch (error) {
             console.log("No wallet connected yet");
         }
-
-        // Periodically check wallet state to keep UI in sync
-        setInterval(async () => {
-            const wasSignedIn = currentWallet !== null;
-            await refreshWalletState();
-            const isSignedIn = currentWallet !== null;
-
-            // Only log if state changed
-            if (wasSignedIn !== isSignedIn) {
-                console.log(`Wallet state changed: ${isSignedIn ? 'signed in' : 'signed out'}`);
-            }
-        }, 5000); // Check every 5 seconds
 
         console.log("Wallet initialized successfully");
     } catch (error) {
