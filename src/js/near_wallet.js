@@ -65,23 +65,23 @@ function initLoginButton() {
             if (currentWallet) {
                 // If logged in, sign out
                 console.log("Attempting to sign out...");
-                
+
                 try {
                     await currentWallet.signOut();
                     console.log("SignOut method completed");
-                    
+
                     // Manually update UI since event might not fire
                     currentWallet = null;
                     updateLoginButton();
                     console.log("UI updated after logout");
-                    
+
                     // Optional: Reload page to ensure clean state
                     // Uncomment the next line if you want automatic page reload
                     // window.location.reload();
-                    
+
                 } catch (signOutError) {
                     console.error("SignOut failed:", signOutError);
-                    
+
                     // Force logout by clearing state and reloading
                     currentWallet = null;
                     updateLoginButton();
@@ -123,6 +123,25 @@ function updateLoginButton() {
         loginButton.title = 'Connect your NEAR wallet';
         loginButton.style.backgroundColor = ''; // Reset to default
     }
+}
+
+// Manual refresh function to check wallet state
+export async function refreshWalletState() {
+    try {
+        const wallet = await selector.wallet();
+        if (wallet && wallet.accountId) {
+            currentWallet = wallet;
+            console.log("Wallet state refreshed - logged in as:", wallet.accountId);
+        } else {
+            currentWallet = null;
+            console.log("Wallet state refreshed - not logged in");
+        }
+    } catch (error) {
+        currentWallet = null;
+        console.log("Wallet state refreshed - no wallet connected");
+    }
+    updateLoginButton();
+    return currentWallet;
 }
 
 // Export functions for use in other modules
