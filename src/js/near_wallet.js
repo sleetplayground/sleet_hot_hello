@@ -10,13 +10,13 @@ let currentWallet = null;
 export async function initWallet() {
     try {
         const networkId = getCurrentNetworkId();
-        
-        selector = new WalletSelector({ 
-            network: networkId 
+
+        selector = new WalletSelector({
+            network: networkId
         });
-        
+
         modal = new WalletSelectorUI(selector);
-        
+
         // Debug: log available methods on modal
         console.log("Modal methods:", Object.getOwnPropertyNames(modal));
         console.log("Modal prototype methods:", Object.getOwnPropertyNames(Object.getPrototypeOf(modal)));
@@ -36,7 +36,7 @@ export async function initWallet() {
 
         // Initialize login button
         initLoginButton();
-        
+
         // Check if already signed in
         try {
             currentWallet = await selector.wallet();
@@ -54,7 +54,7 @@ export async function initWallet() {
 // Initialize login button functionality
 function initLoginButton() {
     const loginButton = document.getElementById('near_login_button');
-    
+
     if (!loginButton) {
         console.error('Login button not found');
         return;
@@ -64,7 +64,21 @@ function initLoginButton() {
         try {
             if (currentWallet) {
                 // If logged in, sign out
-                await selector.signOut();
+                try {
+                    if (typeof currentWallet.signOut === 'function') {
+                        await currentWallet.signOut();
+                    } else if (typeof modal.signOut === 'function') {
+                        await modal.signOut();
+                    } else if (typeof selector.disconnect === 'function') {
+                        await selector.disconnect();
+                    } else {
+                        console.log("Available wallet methods:", Object.getOwnPropertyNames(currentWallet));
+                        throw new Error("No suitable signOut method found");
+                    }
+                } catch (signOutError) {
+                    console.error("SignOut error:", signOutError);
+                    throw signOutError;
+                }
             } else {
                 // If not logged in, show modal to sign in
                 try {
@@ -93,7 +107,7 @@ function initLoginButton() {
 // Update login button text and state
 function updateLoginButton() {
     const loginButton = document.getElementById('near_login_button');
-    
+
     if (!loginButton) return;
 
     if (currentWallet) {
