@@ -64,7 +64,30 @@ function initLoginButton() {
         try {
             if (currentWallet) {
                 // If logged in, sign out
-                await currentWallet.signOut();
+                console.log("Attempting to sign out...");
+                
+                try {
+                    await currentWallet.signOut();
+                    console.log("SignOut method completed");
+                    
+                    // Manually update UI since event might not fire
+                    currentWallet = null;
+                    updateLoginButton();
+                    console.log("UI updated after logout");
+                    
+                    // Optional: Reload page to ensure clean state
+                    // Uncomment the next line if you want automatic page reload
+                    // window.location.reload();
+                    
+                } catch (signOutError) {
+                    console.error("SignOut failed:", signOutError);
+                    
+                    // Force logout by clearing state and reloading
+                    currentWallet = null;
+                    updateLoginButton();
+                    console.log("Forced logout - reloading page");
+                    window.location.reload();
+                }
             } else {
                 // If not logged in, show modal
                 // Based on your feedback, one of these methods works
