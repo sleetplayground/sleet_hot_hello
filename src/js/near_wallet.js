@@ -1,6 +1,6 @@
 import { WalletSelector, WalletSelectorUI } from "@hot-labs/near-connect";
 import "@hot-labs/near-connect/modal-ui.css";
-import { getCurrentNetworkId } from './config';
+import { getCurrentNetworkId } from './config.js';
 
 let selector = null;
 let modal = null;
@@ -29,7 +29,7 @@ export async function initWallet() {
             const wallet = await selector.wallet(); // api like near-wallet-selector
             const address = t.accounts[0].accountId;
             console.log("Connected account:", address);
-            
+
             currentWallet = wallet;
             updateLoginButton();
         });
@@ -64,57 +64,18 @@ function initLoginButton() {
         try {
             if (currentWallet) {
                 // If logged in, sign out
-                try {
-                    if (typeof currentWallet.signOut === 'function') {
-                        await currentWallet.signOut();
-                    } else if (typeof modal.signOut === 'function') {
-                        await modal.signOut();
-                    } else if (typeof selector.disconnect === 'function') {
-                        await selector.disconnect();
-                    } else {
-                        console.log("Available wallet methods:", Object.getOwnPropertyNames(currentWallet));
-                        throw new Error("No suitable signOut method found");
-                    }
-
-                    // Manually update UI since event might not fire
-                    currentWallet = null;
-                    updateLoginButton();
-                    console.log("Successfully signed out");
-                } catch (signOutError) {
-                    console.error("SignOut error:", signOutError);
-                    throw signOutError;
-                }
+                await currentWallet.signOut();
             } else {
-                // If not logged in, show modal to sign in
-                // Try different methods to open the modal
-                console.log("Modal object:", modal);
-                console.log("Modal methods:", Object.getOwnPropertyNames(modal));
-                console.log("Modal prototype:", Object.getOwnPropertyNames(Object.getPrototypeOf(modal)));
-
-                // Try calling the modal as a function
-                if (typeof modal === 'function') {
-                    modal();
+                // If not logged in, show modal
+                // Based on your feedback, one of these methods works
+                if (typeof modal.show === 'function') {
+                    modal.show();
+                } else if (typeof modal.open === 'function') {
+                    modal.open();
                 } else {
-                    // Try common method names
-                    const methods = ['show', 'open', 'display', 'render', 'mount', 'signIn'];
-                    let methodFound = false;
-
-                    for (const method of methods) {
-                        if (typeof modal[method] === 'function') {
-                            console.log(`Trying method: ${method}`);
-                            try {
-                                await modal[method]();
-                                methodFound = true;
-                                break;
-                            } catch (err) {
-                                console.log(`Method ${method} failed:`, err);
-                            }
-                        }
-                    }
-
-                    if (!methodFound) {
-                        alert('Unable to open wallet selector. Please check the console for available methods.');
-                    }
+                    // Fallback - try to trigger wallet selection
+                    console.log("Trying to open wallet selector...");
+                    modal.show();
                 }
             }
         } catch (error) {
@@ -138,19 +99,6 @@ function updateLoginButton() {
         loginButton.textContent = 'LOGIN';
         loginButton.title = 'Connect your NEAR wallet';
         loginButton.style.backgroundColor = ''; // Reset to default
-    }
-}
-
-// Refresh wallet state
-export async function refreshWalletState() {
-    try {
-        currentWallet = await selector.wallet();
-        updateLoginButton();
-        return true;
-    } catch (error) {
-        currentWallet = null;
-        updateLoginButton();
-        return false;
     }
 }
 
