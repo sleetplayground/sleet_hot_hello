@@ -94,7 +94,28 @@ function initLoginButton() {
                 }
             } else {
                 // If not logged in, show modal to sign in
-                modal.show();
+                try {
+                    if (typeof modal.show === 'function') {
+                        modal.show();
+                    } else if (typeof modal.open === 'function') {
+                        modal.open();
+                    } else if (typeof modal.signIn === 'function') {
+                        await modal.signIn();
+                    } else {
+                        // Try different approaches
+                        console.log("Trying alternative modal methods...");
+                        modal.show();
+                    }
+                } catch (modalError) {
+                    console.error("Modal error:", modalError);
+                    // If modal methods fail, try selector methods
+                    try {
+                        await selector.connect();
+                    } catch (selectorError) {
+                        console.error("Selector connect error:", selectorError);
+                        throw new Error("Unable to open wallet selector");
+                    }
+                }
             }
         } catch (error) {
             console.error('Login/logout error:', error);
