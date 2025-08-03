@@ -16,6 +16,10 @@ export async function initWallet() {
         });
         
         modal = new WalletSelectorUI(selector);
+        
+        // Debug: log available methods on modal
+        console.log("Modal methods:", Object.getOwnPropertyNames(modal));
+        console.log("Modal prototype methods:", Object.getOwnPropertyNames(Object.getPrototypeOf(modal)));
 
         // Set up event listeners
         selector.on("wallet:signOut", async () => {
@@ -63,7 +67,7 @@ function initLoginButton() {
                 await selector.signOut();
             } else {
                 // If not logged in, show modal to sign in
-                await selector.connect();
+                modal.show();
             }
         } catch (error) {
             console.error('Login/logout error:', error);
