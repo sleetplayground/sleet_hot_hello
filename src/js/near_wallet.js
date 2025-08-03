@@ -67,7 +67,21 @@ function initLoginButton() {
                 await selector.signOut();
             } else {
                 // If not logged in, show modal to sign in
-                modal.show();
+                try {
+                    if (typeof modal.show === 'function') {
+                        modal.show();
+                    } else if (typeof modal.open === 'function') {
+                        modal.open();
+                    } else if (typeof modal.signIn === 'function') {
+                        await modal.signIn();
+                    } else {
+                        console.log("Available modal methods:", Object.getOwnPropertyNames(modal));
+                        throw new Error("No suitable method found to open wallet modal");
+                    }
+                } catch (modalError) {
+                    console.error("Modal error:", modalError);
+                    throw modalError;
+                }
             }
         } catch (error) {
             console.error('Login/logout error:', error);
