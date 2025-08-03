@@ -93,15 +93,36 @@ function initLoginButton() {
                     throw signOutError;
                 }
             } else {
-                // If not logged in, trigger wallet selection
-                // The modal should automatically show when we try to get a wallet
-                try {
-                    // This should trigger the wallet selector UI
-                    await selector.wallet();
-                } catch (error) {
-                    // This is expected when no wallet is connected
-                    // The UI should have shown the wallet selector
-                    console.log("Wallet selector should have opened");
+                // If not logged in, show modal to sign in
+                // Try different methods to open the modal
+                console.log("Modal object:", modal);
+                console.log("Modal methods:", Object.getOwnPropertyNames(modal));
+                console.log("Modal prototype:", Object.getOwnPropertyNames(Object.getPrototypeOf(modal)));
+
+                // Try calling the modal as a function
+                if (typeof modal === 'function') {
+                    modal();
+                } else {
+                    // Try common method names
+                    const methods = ['show', 'open', 'display', 'render', 'mount', 'signIn'];
+                    let methodFound = false;
+
+                    for (const method of methods) {
+                        if (typeof modal[method] === 'function') {
+                            console.log(`Trying method: ${method}`);
+                            try {
+                                await modal[method]();
+                                methodFound = true;
+                                break;
+                            } catch (err) {
+                                console.log(`Method ${method} failed:`, err);
+                            }
+                        }
+                    }
+
+                    if (!methodFound) {
+                        alert('Unable to open wallet selector. Please check the console for available methods.');
+                    }
                 }
             }
         } catch (error) {
