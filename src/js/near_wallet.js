@@ -63,7 +63,7 @@ function initLoginButton() {
                 await selector.signOut();
             } else {
                 // If not logged in, show modal to sign in
-                await selector.signIn();
+                await selector.connect();
             }
         } catch (error) {
             console.error('Login/logout error:', error);
