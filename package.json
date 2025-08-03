@@ -8,7 +8,9 @@
     "build": "npm run clean && parcel build",
     "clean": "rm -rf dist && rm -rf .parcel-cache"
   },
-  "dependencies": {},
+  "dependencies": {
+    "@hot-labs/near-connect": "^0.2.15"
+  },
   "devDependencies": {
     "parcel": "^2.14.0"
   }
