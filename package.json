@@ -9,7 +9,8 @@
     "clean": "rm -rf dist && rm -rf .parcel-cache"
   },
   "dependencies": {
-    "@hot-labs/near-connect": "^0.2.15"
+    "@hot-labs/near-connect": "^0.2.15",
+    "near-api-js": "^5.1.1"
   },
   "devDependencies": {
     "parcel": "^2.14.0"
