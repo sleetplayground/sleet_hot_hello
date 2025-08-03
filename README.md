@@ -7,9 +7,9 @@
 
 ```sh
 bun install
-bun start 
-bun build
-bun clean
+bun run start
+bun run build
+bun run clean
 
 # web4 deploy
 NEAR_SIGNER_KEY=ed25519:your_key_here
