@@ -56,14 +56,24 @@ export function useGreeting() {
       throw new Error('Please connect your wallet first');
     }
 
+    if (!wallet.accountId) {
+      throw new Error('Wallet account ID not available');
+    }
+
     setIsLoading(true);
     setError(null);
 
     try {
       const contractName = getHelloContract();
 
+      console.log('Sending transaction with:', {
+        signerId: wallet.accountId,
+        receiverId: contractName,
+        message
+      });
+
       const result = await wallet.signAndSendTransaction({
-        signerId: wallet.accountId || '',
+        signerId: wallet.accountId,
         receiverId: contractName,
         actions: [{
           type: 'FunctionCall',
@@ -82,6 +92,7 @@ export function useGreeting() {
       return result;
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : "Unknown error";
+      console.error('Transaction failed:', err);
       setError(errorMessage);
       throw err;
     } finally {

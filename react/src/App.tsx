@@ -3,6 +3,7 @@ import { WalletButton } from './components/WalletButton'
 import { GreetingDisplay } from './components/GreetingDisplay'
 import { GreetingUpdate } from './components/GreetingUpdate'
 import { NetworkToggle } from './components/NetworkToggle'
+import { WalletDebug } from './components/WalletDebug'
 
 function App() {
   return (
@@ -30,6 +31,8 @@ function App() {
       }}>
         <WalletButton />
       </div>
+
+      <WalletDebug />
     </>
   )
 }

@@ -10,6 +10,7 @@ export interface WalletContextType {
   signIn: () => Promise<void>;
   signOut: () => Promise<void>;
   selector: WalletSelector | null;
+  refreshWalletState: () => Promise<NearWallet | null>;
 }
 
 export const WalletContext = createContext<WalletContextType | undefined>(undefined);

@@ -21,6 +21,7 @@ export function WalletProvider({ children }: { children: ReactNode }) {
   const initWallet = async () => {
     try {
       const networkId = getCurrentNetworkId();
+      console.log("Initializing wallet for network:", networkId);
 
       const walletSelector = new WalletSelector({
         network: networkId
@@ -33,14 +34,14 @@ export function WalletProvider({ children }: { children: ReactNode }) {
 
       // Set up event listeners
       walletSelector.on("wallet:signOut", async () => {
-        console.log("Wallet signed out");
+        console.log("Wallet signed out event");
         setWallet(null);
         setIsSignedIn(false);
         setAccountId(null);
       });
 
       walletSelector.on("wallet:signIn", async (t: SignInEvent) => {
-        console.log("Wallet signed in:", t);
+        console.log("Wallet signed in event:", t);
         const connectedWallet = await walletSelector.wallet() as LibraryWallet;
         const address = t.accounts[0].accountId;
         console.log("Connected account:", address);
@@ -52,15 +53,28 @@ export function WalletProvider({ children }: { children: ReactNode }) {
 
       // Check if already signed in - this is crucial for persistence
       try {
+        console.log("Checking for existing wallet session...");
         const existingWallet = await walletSelector.wallet() as LibraryWallet;
-        if (existingWallet && existingWallet.accountId) {
-          console.log("Restored wallet session:", existingWallet.accountId);
-          setWallet(existingWallet);
-          setIsSignedIn(true);
-          setAccountId(existingWallet.accountId);
+        console.log("Existing wallet check result:", existingWallet);
+        
+        if (existingWallet) {
+          // The wallet exists, check if it has an accountId
+          const accountIdValue = existingWallet.accountId;
+          console.log("Wallet accountId:", accountIdValue);
+          
+          if (accountIdValue) {
+            console.log("Restored wallet session:", accountIdValue);
+            setWallet(existingWallet);
+            setIsSignedIn(true);
+            setAccountId(accountIdValue);
+          } else {
+            console.log("Wallet exists but no accountId");
+          }
+        } else {
+          console.log("No existing wallet found");
         }
-      } catch {
-        console.log("No existing wallet session");
+      } catch (walletError) {
+        console.log("No existing wallet session, error:", walletError);
       }
 
       setIsLoading(false);
@@ -72,17 +86,29 @@ export function WalletProvider({ children }: { children: ReactNode }) {
   };
 
   const signIn = async () => {
-    if (!modal) return;
+    if (!modal) {
+      console.error('Modal not available');
+      return;
+    }
     
     try {
-      // Try different methods that might be available
-      if (modal.show) {
-        modal.show();
-      } else if (modal.open) {
-        modal.open();
+      console.log('Attempting to show wallet modal');
+      // Based on the HTML version, try show method first
+      const modalWithMethods = modal as unknown as { 
+        show?: () => void; 
+        open?: () => void; 
+      };
+      
+      if (typeof modalWithMethods.show === 'function') {
+        console.log('Using modal.show()');
+        modalWithMethods.show();
+      } else if (typeof modalWithMethods.open === 'function') {
+        console.log('Using modal.open()');
+        modalWithMethods.open();
       } else {
-        // Fallback - cast to any for unknown methods
-        (modal as unknown as { show: () => void }).show();
+        console.log('Fallback: trying show method');
+        // Force call show method as last resort
+        (modalWithMethods as any).show();
       }
     } catch (signInError) {
       console.error('Sign in error:', signInError);
@@ -107,6 +133,35 @@ export function WalletProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  // Manual refresh function similar to HTML version
+  const refreshWalletState = async () => {
+    if (!selector) return null;
+    
+    try {
+      console.log("Manually refreshing wallet state...");
+      const wallet = await selector.wallet() as LibraryWallet;
+      if (wallet && wallet.accountId) {
+        console.log("Manual refresh - wallet found:", wallet.accountId);
+        setWallet(wallet);
+        setIsSignedIn(true);
+        setAccountId(wallet.accountId);
+        return wallet;
+      } else {
+        console.log("Manual refresh - no wallet");
+        setWallet(null);
+        setIsSignedIn(false);
+        setAccountId(null);
+        return null;
+      }
+    } catch (error) {
+      console.log("Manual refresh - error:", error);
+      setWallet(null);
+      setIsSignedIn(false);
+      setAccountId(null);
+      return null;
+    }
+  };
+
   return (
     <WalletContext.Provider value={{
       wallet,
@@ -116,6 +171,7 @@ export function WalletProvider({ children }: { children: ReactNode }) {
       signIn,
       signOut,
       selector,
+      refreshWalletState,
     }}>
       {children}
     </WalletContext.Provider>
