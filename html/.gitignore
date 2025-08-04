@@ -1,0 +1,6 @@
+.parcel-cache/
+dist/
+node_modules/
+/.vscode
+bun.lock
+.DS_Store
