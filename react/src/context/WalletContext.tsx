@@ -62,7 +62,7 @@ export function WalletProvider({ children }: { children: ReactNode }) {
           console.log("Restored wallet session:", existingWallet);
           setWallet(existingWallet as unknown as NearWallet);
           setIsSignedIn(true);
-          setAccountId((existingWallet as any).accountId || null);
+          setAccountId((existingWallet as unknown as { accountId?: string }).accountId || null);
         } else {
           console.log("No existing wallet found");
         }
@@ -101,7 +101,7 @@ export function WalletProvider({ children }: { children: ReactNode }) {
       } else {
         console.log('Fallback: trying show method');
         // Force call show method as last resort
-        (modalWithMethods as any).show();
+        (modalWithMethods as unknown as { show: () => void }).show();
       }
     } catch (signInError) {
       console.error('Sign in error:', signInError);
@@ -134,10 +134,11 @@ export function WalletProvider({ children }: { children: ReactNode }) {
       console.log("Manually refreshing wallet state...");
       const wallet = await selector.wallet();
       if (wallet) {
-        console.log("Manual refresh - wallet found:", (wallet as any).accountId);
+        const walletWithAccountId = wallet as unknown as { accountId?: string };
+        console.log("Manual refresh - wallet found:", walletWithAccountId.accountId);
         setWallet(wallet as unknown as NearWallet);
         setIsSignedIn(true);
-        setAccountId((wallet as any).accountId || null);
+        setAccountId(walletWithAccountId.accountId || null);
         return wallet as unknown as NearWallet;
       } else {
         console.log("Manual refresh - no wallet");
