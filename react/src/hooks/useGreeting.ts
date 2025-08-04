@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { getHelloContract, getNearRpc } from '../config';
+import type { NearWallet } from '../types/wallet';
 
 
 export function useGreeting() {
@@ -50,7 +51,7 @@ export function useGreeting() {
     }
   };
 
-  const updateGreeting = async (message: string, wallet: any) => {
+  const updateGreeting = async (message: string, wallet: NearWallet | null) => {
     if (!wallet) {
       throw new Error('Please connect your wallet first');
     }
@@ -62,7 +63,7 @@ export function useGreeting() {
       const contractName = getHelloContract();
 
       const result = await wallet.signAndSendTransaction({
-        signerId: wallet.accountId,
+        signerId: wallet.accountId || '',
         receiverId: contractName,
         actions: [{
           type: 'FunctionCall',

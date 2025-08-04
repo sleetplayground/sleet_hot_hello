@@ -3,7 +3,7 @@ import type { ReactNode } from 'react';
 import { WalletSelector, WalletSelectorUI } from "@hot-labs/near-connect";
 import "@hot-labs/near-connect/modal-ui.css";
 import { getCurrentNetworkId } from '../config';
-import type { SignInEvent, NearWallet, WalletModal } from '../types/wallet';
+import type { SignInEvent, NearWallet, WalletModal, LibraryWallet } from '../types/wallet';
 import { WalletContext } from './WalletContext';
 
 export function WalletProvider({ children }: { children: ReactNode }) {
@@ -12,7 +12,7 @@ export function WalletProvider({ children }: { children: ReactNode }) {
   const [accountId, setAccountId] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [selector, setSelector] = useState<WalletSelector | null>(null);
-  const [modal, setModal] = useState<WalletSelectorUI | null>(null);
+  const [modal, setModal] = useState<WalletModal | null>(null);
 
   useEffect(() => {
     initWallet();
@@ -29,7 +29,7 @@ export function WalletProvider({ children }: { children: ReactNode }) {
       const walletModal = new WalletSelectorUI(walletSelector);
 
       setSelector(walletSelector);
-      setModal(walletModal);
+      setModal(walletModal as WalletModal);
 
       // Set up event listeners
       walletSelector.on("wallet:signOut", async () => {
@@ -41,7 +41,7 @@ export function WalletProvider({ children }: { children: ReactNode }) {
 
       walletSelector.on("wallet:signIn", async (t: SignInEvent) => {
         console.log("Wallet signed in:", t);
-        const connectedWallet = await walletSelector.wallet();
+        const connectedWallet = await walletSelector.wallet() as LibraryWallet;
         const address = t.accounts[0].accountId;
         console.log("Connected account:", address);
 
@@ -52,12 +52,12 @@ export function WalletProvider({ children }: { children: ReactNode }) {
 
       // Check if already signed in - this is crucial for persistence
       try {
-        const existingWallet = await walletSelector.wallet();
-        if (existingWallet && (existingWallet as any).accountId) {
-          console.log("Restored wallet session:", (existingWallet as any).accountId);
+        const existingWallet = await walletSelector.wallet() as LibraryWallet;
+        if (existingWallet && existingWallet.accountId) {
+          console.log("Restored wallet session:", existingWallet.accountId);
           setWallet(existingWallet);
           setIsSignedIn(true);
-          setAccountId((existingWallet as any).accountId);
+          setAccountId(existingWallet.accountId);
         }
       } catch {
         console.log("No existing wallet session");
@@ -76,13 +76,13 @@ export function WalletProvider({ children }: { children: ReactNode }) {
     
     try {
       // Try different methods that might be available
-      if (typeof (modal as any).show === 'function') {
-        (modal as any).show();
-      } else if (typeof (modal as any).open === 'function') {
-        (modal as any).open();
+      if (modal.show) {
+        modal.show();
+      } else if (modal.open) {
+        modal.open();
       } else {
-        // Fallback - just try show
-        (modal as any).show();
+        // Fallback - cast to any for unknown methods
+        (modal as unknown as { show: () => void }).show();
       }
     } catch (signInError) {
       console.error('Sign in error:', signInError);

@@ -35,3 +35,10 @@ export interface WalletModal {
   show?: () => void;
   open?: () => void;
 }
+
+// Library wallet type (what we actually get from the selector)
+export interface LibraryWallet {
+  accountId?: string;
+  signOut(): Promise<void>;
+  signAndSendTransaction(params: TransactionParams): Promise<unknown>;
+}
