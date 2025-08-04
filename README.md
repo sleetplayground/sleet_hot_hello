@@ -4,6 +4,10 @@
 ℹ️ uses the new hot-dao near wallet selector
 
 
+ui samples
+- [x] html
+- [ ] react
+
 
 ---
 
