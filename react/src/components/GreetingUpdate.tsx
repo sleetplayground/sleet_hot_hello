@@ -1,11 +1,11 @@
 import { useState } from 'react';
 import { useGreeting } from '../hooks/useGreeting';
-import { useNearWallet } from '../hooks/useNearWallet';
+import { useWallet } from '../hooks/useWallet';
 
 export function GreetingUpdate() {
   const [newGreeting, setNewGreeting] = useState('');
   const { updateGreeting, isLoading } = useGreeting();
-  const { wallet, isSignedIn } = useNearWallet();
+  const { wallet, isSignedIn } = useWallet();
 
   const handleUpdate = async () => {
     if (!newGreeting.trim()) {

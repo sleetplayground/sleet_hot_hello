@@ -1,7 +1,7 @@
-import { useNearWallet } from '../hooks/useNearWallet';
+import { useWallet } from '../hooks/useWallet';
 
 export function WalletButton() {
-  const { isSignedIn, accountId, isLoading, signIn, signOut } = useNearWallet();
+  const { isSignedIn, accountId, isLoading, signIn, signOut } = useWallet();
 
   if (isLoading) {
     return <button disabled>Loading...</button>;

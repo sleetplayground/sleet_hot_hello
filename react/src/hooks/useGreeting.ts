@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { getHelloContract, getNearRpc } from '../config';
 
+
 export function useGreeting() {
   const [greeting, setGreeting] = useState<string>('');
   const [isLoading, setIsLoading] = useState(false);
