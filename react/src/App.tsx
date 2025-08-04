@@ -1,33 +1,35 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
 import './App.css'
+import { WalletButton } from './components/WalletButton'
+import { GreetingDisplay } from './components/GreetingDisplay'
+import { GreetingUpdate } from './components/GreetingUpdate'
+import { NetworkToggle } from './components/NetworkToggle'
 
 function App() {
-  const [count, setCount] = useState(0)
-
   return (
     <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
+      <NetworkToggle />
+      
+      <article style={{ maxWidth: '800px', margin: '0 auto', padding: '20px' }}>
+        <header style={{ textAlign: 'center', marginBottom: '40px' }}>
+          <h1>hello.sleet.near</h1>
+        </header>
+
+        <GreetingDisplay />
+        
+        <GreetingUpdate />
+
+        <footer style={{ textAlign: 'center', marginTop: '40px' }}>
+          <p>copyright: 2025 by sleet.near</p>
+        </footer>
+      </article>
+
+      <div style={{ 
+        position: 'fixed', 
+        top: '20px', 
+        right: '20px' 
+      }}>
+        <WalletButton />
       </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
     </>
   )
 }
