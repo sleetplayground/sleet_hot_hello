@@ -56,10 +56,6 @@ export function useGreeting() {
       throw new Error('Please connect your wallet first');
     }
 
-    if (!wallet.accountId) {
-      throw new Error('Wallet account ID not available');
-    }
-
     setIsLoading(true);
     setError(null);
 
@@ -69,11 +65,13 @@ export function useGreeting() {
       console.log('Sending transaction with:', {
         signerId: wallet.accountId,
         receiverId: contractName,
-        message
+        message,
+        wallet: wallet
       });
 
+      // Use wallet.accountId directly like HTML version
       const result = await wallet.signAndSendTransaction({
-        signerId: wallet.accountId,
+        signerId: wallet.accountId!,
         receiverId: contractName,
         actions: [{
           type: 'FunctionCall',

@@ -3,7 +3,7 @@ import type { ReactNode } from 'react';
 import { WalletSelector, WalletSelectorUI } from "@hot-labs/near-connect";
 import "@hot-labs/near-connect/modal-ui.css";
 import { getCurrentNetworkId } from '../config';
-import type { SignInEvent, NearWallet, WalletModal, LibraryWallet } from '../types/wallet';
+import type { SignInEvent, NearWallet, WalletModal } from '../types/wallet';
 import { WalletContext } from './WalletContext';
 
 export function WalletProvider({ children }: { children: ReactNode }) {
@@ -42,34 +42,27 @@ export function WalletProvider({ children }: { children: ReactNode }) {
 
       walletSelector.on("wallet:signIn", async (t: SignInEvent) => {
         console.log("Wallet signed in event:", t);
-        const connectedWallet = await walletSelector.wallet() as LibraryWallet;
+        const connectedWallet = await walletSelector.wallet();
         const address = t.accounts[0].accountId;
         console.log("Connected account:", address);
 
-        setWallet(connectedWallet);
+        setWallet(connectedWallet as unknown as NearWallet);
         setIsSignedIn(true);
         setAccountId(address);
       });
 
-      // Check if already signed in - this is crucial for persistence
+      // Check if already signed in - exactly like HTML version
       try {
         console.log("Checking for existing wallet session...");
-        const existingWallet = await walletSelector.wallet() as LibraryWallet;
+        const existingWallet = await walletSelector.wallet();
         console.log("Existing wallet check result:", existingWallet);
         
         if (existingWallet) {
-          // The wallet exists, check if it has an accountId
-          const accountIdValue = existingWallet.accountId;
-          console.log("Wallet accountId:", accountIdValue);
-          
-          if (accountIdValue) {
-            console.log("Restored wallet session:", accountIdValue);
-            setWallet(existingWallet);
-            setIsSignedIn(true);
-            setAccountId(accountIdValue);
-          } else {
-            console.log("Wallet exists but no accountId");
-          }
+          // HTML version just checks if wallet exists, not accountId
+          console.log("Restored wallet session:", existingWallet);
+          setWallet(existingWallet as unknown as NearWallet);
+          setIsSignedIn(true);
+          setAccountId((existingWallet as any).accountId || null);
         } else {
           console.log("No existing wallet found");
         }
@@ -133,19 +126,19 @@ export function WalletProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  // Manual refresh function similar to HTML version
+  // Manual refresh function exactly like HTML version
   const refreshWalletState = async () => {
     if (!selector) return null;
     
     try {
       console.log("Manually refreshing wallet state...");
-      const wallet = await selector.wallet() as LibraryWallet;
-      if (wallet && wallet.accountId) {
-        console.log("Manual refresh - wallet found:", wallet.accountId);
-        setWallet(wallet);
+      const wallet = await selector.wallet();
+      if (wallet) {
+        console.log("Manual refresh - wallet found:", (wallet as any).accountId);
+        setWallet(wallet as unknown as NearWallet);
         setIsSignedIn(true);
-        setAccountId(wallet.accountId);
-        return wallet;
+        setAccountId((wallet as any).accountId || null);
+        return wallet as unknown as NearWallet;
       } else {
         console.log("Manual refresh - no wallet");
         setWallet(null);

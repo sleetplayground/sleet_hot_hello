@@ -25,7 +25,7 @@ export interface TransactionParams {
 
 // Wallet interface that matches the hot-labs/near-connect library
 export interface NearWallet {
-  accountId?: string;
+  accountId?: string; // Keep optional like the library
   signOut(): Promise<void>;
   signAndSendTransaction(params: TransactionParams): Promise<unknown>;
 }
@@ -34,11 +34,4 @@ export interface NearWallet {
 export interface WalletModal {
   show?: () => void;
   open?: () => void;
-}
-
-// Library wallet type (what we actually get from the selector)
-export interface LibraryWallet {
-  accountId?: string;
-  signOut(): Promise<void>;
-  signAndSendTransaction(params: TransactionParams): Promise<unknown>;
 }
