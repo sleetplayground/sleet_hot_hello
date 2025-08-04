@@ -5,8 +5,8 @@
 
 
 ui samples
-- [x] html
-- [ ] react
+- [x] html - npm create parcel vanilla sleet_hot_hello
+- [ ] react - bun create vite
 
 
 ---
