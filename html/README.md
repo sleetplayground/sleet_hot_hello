@@ -15,10 +15,6 @@ bun run clean
 bun x parcel build
 bun x parcel build --no-scope-hoist --log-level verbose
 
-# web4 deploy
-NEAR_SIGNER_KEY=ed25519:your_key_here
-bun run web4_testnet
-bun run web4_mainnet
 ```
 
 
